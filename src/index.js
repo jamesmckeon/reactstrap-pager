@@ -93,8 +93,8 @@ Pager.propTypes = {
   pageChanged: PropTypes.func.isRequired,
   //the total number of pages
   totalPages: function(props, propName, component) {
-    if (isNaN(props.totalPages)) {
-      return new Error("totalPages must be a number");
+    if (!props.totalPages) {
+      return new Error("totalPages is required");
     } else if (Math.sign(props.totalPages) !== 1) {
       return new Error("totalpages must be a positive number");
     } else if (props.totalPages < 2) {
