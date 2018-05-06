@@ -5,23 +5,6 @@ import { shallow, mount, configure } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 
 configure({ adapter: new Adapter() });
-//Enzyme.configure({ adapter: new Adapter() });
-
-describe("<index />", () => {
-  it("renders without crashing", () => {
-    const div = document.createElement("div");
-    ReactDOM.render(
-      <Pager
-        totalPages={5}
-        totalDisplayed={5}
-        pageChanged={() => {
-          return;
-        }}
-      />,
-      div
-    );
-  });
-});
 
 describe("Pager", () => {
   it("raises pageChanged", () => {
@@ -91,6 +74,61 @@ describe("Pager", () => {
     expect(activeLink.text()).toEqual("1");
   });
 
+  it("disables back button on initial render", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={5}
+      />
+    );
+
+    const pagination = pager.find(".pagination").at(0);
+    const backItem = pagination.childAt(0);
+
+    //link with text "1" should be active on initial render
+    expect(backItem.render().hasClass("disabled")).toEqual(true);
+  });
+
+  it("enables back button", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={5}
+      />
+    );
+
+    const backItem = pager.find(".page-item").at(0);
+    const linkTwo = pager.find("a[href=2]").at(0);
+
+    linkTwo.simulate("click");
+
+    //link with text "1" should be active on initial render
+    expect(backItem.render().hasClass("disabled")).toEqual(false);
+  });
+
+  it("enables forward button on initial render", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={10}
+        totalDisplayed={5}
+      />
+    );
+
+    const totalItems = pager.find(".page-item").length;
+    const forwardItem = pager.find(".page-item").at(totalItems - 1);
+
+    expect(forwardItem.render().hasClass("disabled")).toEqual(false);
+  });
+
   it("activates link on click", () => {
     const pager = mount(
       <Pager
@@ -102,14 +140,15 @@ describe("Pager", () => {
       />
     );
 
-    const link = pager.find('a[href="2"]');
+    const pageItem = pager
+      .find(".page-item")
+      .filterWhere(i => i.find("a[href=2]").length === 1);
+    const link = pager.find("a[href=2]").at(0);
 
-    pager.find("a").forEach(l => {
-      console.log(l.text());
-    });
-    //console.log(links);
-    // console.log(link);
-    //link with text "1" should be active on initial render
-    expect(activeLink.text()).toEqual("1");
+    link.simulate("click");
+
+    //have to call render
+    //https://github.com/airbnb/enzyme/issues/1177
+    expect(pageItem.render().hasClass("active")).toEqual(true);
   });
 });
