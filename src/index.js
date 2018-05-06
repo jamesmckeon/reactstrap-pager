@@ -89,7 +89,9 @@ class Pager extends React.Component {
 }
 
 Pager.propTypes = {
+  //fired when user clicks a page number
   pageChanged: PropTypes.func.isRequired,
+  //the total number of pages
   totalPages: function(props, propName, component) {
     if (isNaN(props.totalPages)) {
       return new Error("totalPages must be a number");
@@ -99,6 +101,7 @@ Pager.propTypes = {
       return new Error("totalPages must be 2 or greater");
     }
   },
+  //the total number of pages displayed
   totalDisplayed: PropTypes.number
 };
 
