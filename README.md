@@ -1,0 +1,1 @@
+# reactstrap-pager
