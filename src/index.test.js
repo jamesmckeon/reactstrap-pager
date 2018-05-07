@@ -228,4 +228,48 @@ describe("Pager", () => {
     //https://github.com/airbnb/enzyme/issues/1177
     expect(pageItem.render().hasClass("active")).toEqual(true);
   });
+
+  it("activates expected page number on move previous", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={5}
+      />
+    );
+
+    const backItem = pager.find(".page-item").at(0);
+    const linkTwo = pager.find("a[href=2]").at(0);
+    const linkOne = pager.find("a[href=1]").at(0);
+
+    linkTwo.simulate("click");
+    backItem.simulate("click");
+
+    //link with text "1" should be active on initial render
+    expect(linkOne.render().hasClass("active")).toEqual(true);
+  });
+
+  it("activates expected page number on move next", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={5}
+      />
+    );
+
+    const totalItems = pager.find(".page-item").length;
+    const forwardItem = pager.find(".page-item").at(totalItems - 1);
+    const linkTwo = pager.find("a[href=2]").at(0);
+
+    // page 1 item will be active on initial render
+    //clicking move next should activate page 2 item
+    forwardItem.simulate("click");
+
+    expect(linkTwo.render().hasClass("active")).toEqual(true);
+  });
 });
