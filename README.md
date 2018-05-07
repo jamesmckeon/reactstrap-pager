@@ -6,7 +6,6 @@ Follow the install instructions listed on the "Adding Bootstrap" section of the 
 
 Using npm:
 ```shell
-$ npm i -g npm
 $ npm i --save reactstrap-pager
 ```
 
