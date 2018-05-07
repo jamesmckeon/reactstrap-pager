@@ -229,6 +229,35 @@ describe("Pager", () => {
     expect(pageItem.render().hasClass("active")).toEqual(true);
   });
 
+  //see activates expected page number on move next
+  it("sets Current on page click", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={5}
+      />
+    );
+
+    const linkTwo = pager.find("a[href=2]").at(0);
+
+    const current = () => {
+      return pager.state("Current");
+    };
+
+    expect(current()).toEqual(1);
+
+    linkTwo.simulate("click");
+    expect(current()).toEqual(2);
+  });
+
+  //for whatever reason, enzyme doesn't inspect css class reliably
+  //see https://github.com/airbnb/enzyme/issues/1177
+  //id rather verify that page one link parent has class "active" on it
+  //after back/previous link is clicked, but can't get it to work
+  //so i'll just verify expected state
   it("activates expected page number on move previous", () => {
     const pager = mount(
       <Pager
@@ -240,17 +269,23 @@ describe("Pager", () => {
       />
     );
 
-    const backItem = pager.find(".page-item").at(0);
+    const backLink = pager.find("a[aria-label='Previous']").at(0);
+
     const linkTwo = pager.find("a[href=2]").at(0);
     const linkOne = pager.find("a[href=1]").at(0);
 
-    linkTwo.simulate("click");
-    backItem.simulate("click");
+    const current = () => {
+      return pager.state("Current");
+    };
 
-    //link with text "1" should be active on initial render
-    expect(linkOne.render().hasClass("active")).toEqual(true);
+    linkTwo.simulate("click");
+    expect(current()).toEqual(2);
+
+    backLink.simulate("click");
+    expect(current()).toEqual(1);
   });
 
+  //see activates expected page number on move next
   it("activates expected page number on move next", () => {
     const pager = mount(
       <Pager
@@ -262,14 +297,18 @@ describe("Pager", () => {
       />
     );
 
-    const totalItems = pager.find(".page-item").length;
-    const forwardItem = pager.find(".page-item").at(totalItems - 1);
+    const nextLink = pager.find("a[aria-label='Next']").at(0);
+
     const linkTwo = pager.find("a[href=2]").at(0);
+    const linkOne = pager.find("a[href=1]").at(0);
 
-    // page 1 item will be active on initial render
-    //clicking move next should activate page 2 item
-    forwardItem.simulate("click");
+    const current = () => {
+      return pager.state("Current");
+    };
 
-    expect(linkTwo.render().hasClass("active")).toEqual(true);
+    expect(current()).toEqual(1);
+
+    nextLink.simulate("click");
+    expect(current()).toEqual(2);
   });
 });
