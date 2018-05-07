@@ -8,6 +8,68 @@ import Adapter from "enzyme-adapter-react-16";
 configure({ adapter: new Adapter() });
 
 describe("Pager", () => {
+  beforeEach(() => {
+    sinon.stub(console, "error");
+  });
+
+  afterEach(() => {
+    console.error.restore();
+  });
+
+  it("validates totalPages required", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={null}
+        totalDisplayed={5}
+      />
+    );
+
+    sinon.assert.called(console.error);
+    sinon.assert.calledWith(
+      console.error,
+      sinon.match("totalPages is required")
+    );
+  });
+
+  it("validates totalPages >= totalDisplayed", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={5}
+        totalDisplayed={6}
+      />
+    );
+
+    sinon.assert.called(console.error);
+    sinon.assert.calledWith(
+      console.error,
+      sinon.match("totalpages must be >= totalDisplayed")
+    );
+  });
+
+  it("validates totalPages >= 2", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={1}
+        totalDisplayed={1}
+      />
+    );
+
+    sinon.assert.called(console.error);
+    sinon.assert.calledWith(
+      console.error,
+      sinon.match("totalPages must be 2 or greater")
+    );
+  });
+
   xit("raises pageChanged", () => {
     //https://github.com/airbnb/enzyme/blob/master/docs/future.md
 
@@ -34,8 +96,6 @@ describe("Pager", () => {
       .find("a[href=1]")
       .props()
       .onClick(event);
-
-    //console.log(pager.find("a[href=1]").html());
 
     expect(onClick.mock.calls.length).toBe(1);
     //sinon.assert.calledWith(1);

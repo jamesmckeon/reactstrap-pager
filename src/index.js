@@ -95,8 +95,8 @@ Pager.propTypes = {
   totalPages: function(props, propName, component) {
     if (!props.totalPages) {
       return new Error("totalPages is required");
-    } else if (Math.sign(props.totalPages) !== 1) {
-      return new Error("totalpages must be a positive number");
+    } else if (props.totalPages < props.totalDisplayed) {
+      return new Error("totalpages must be >= totalDisplayed");
     } else if (props.totalPages < 2) {
       return new Error("totalPages must be 2 or greater");
     }
