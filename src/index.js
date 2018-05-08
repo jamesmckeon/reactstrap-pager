@@ -1,72 +1,111 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Pager from "reactstrap-pager";
-import { Table, TableProps } from "reactstrap";
+import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
-export const ColumnDef = {
-  sortable: false,
-  headerText: ""
-};
-
-const CenteredText = props => {
-  return (
-    <div className="text-center font-italic">
-      <hr /> <h5>{props.text}</h5>
-      <hr />
-    </div>
-  );
-};
-
-export default class ReactstrapTable extends React.Component {
+class Pager extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.getColumns = this.getColumns.bind(this);
-    this.getBody = this.getBody.bind(this);
+    this.pageClicked = this.pageClicked.bind(this);
+    this.nextClicked = this.nextClicked.bind(this);
+    this.prevClicked = this.prevClicked.bind(this);
+    this.changePage = this.changePage.bind(this);
+
+    this.state = { Current: 1, Pages: this.getItems(1) };
   }
 
-  getColumns() {
-    //no columndefs provided, use first row in data
-    const row = this.props.data[0];
-
-    return Object.keys(row).map(r => {
-      return { header: r, clickable: false };
-    });
+  getItems(startPage) {
+    let items = [];
+    var maxItems = Math.min(this.props.totalPages, this.props.totalDisplayed);
+    for (var i = startPage; i <= maxItems + startPage - 1; i++) {
+      items[i] = i;
+    }
+    return items;
   }
 
-  getBody() {
-    return this.props.data.map(row => {
-      return Object.keys(row).map(key => {
-        return <td>{row[key]}</td>;
+  pageClicked(e) {
+    e.preventDefault();
+
+    let pageNumber = parseInt(e.target.getAttribute("href"));
+    //only change page if user clicks on a different one than what is current
+    if (pageNumber !== this.state.Current) {
+      this.changePage(pageNumber);
+    }
+  }
+  changePage(pageNumber, pages) {
+    if (pages) {
+      this.setState({ Current: pageNumber, Pages: pages }, () => {
+        this.props.pageChanged(this.state.Current);
       });
-    });
+    } else {
+      this.setState({ Current: pageNumber }, () => {
+        this.props.pageChanged(this.state.Current);
+      });
+    }
+  }
+  nextClicked(e) {
+    e.preventDefault();
+
+    const nextPage = this.state.Current + 1;
+    const items = this.state.Pages.includes(nextPage)
+      ? null
+      : this.getItems(nextPage - this.props.totalDisplayed + 1);
+    this.changePage(nextPage, items);
+  }
+
+  prevClicked(e) {
+    e.preventDefault();
+
+    const nextPage = this.state.Current - 1;
+    const pages = this.state.Pages.includes(nextPage)
+      ? null
+      : this.getItems(nextPage);
+
+    this.changePage(nextPage, pages);
   }
 
   render() {
     return (
-      !this.props.hidden && (
-        <div>
-          <div>
-            (this.props.data && this.props.data.length > 0 &&
-            <Table {...this.props}>
-              <thead>
-                <tr>
-                  {this.getColumns.map(c => {
-                    return <th>{c.header}</th>;
-                  })}
-                </tr>
-              </thead>
-              <tbody>{this.getBody()}</tbody>
-            </Table>
-          </div>
-          <Pager />) (!this.props.data || this.props.data.length === 0 &&{" "}
-          <CenteredText text={"No records"} />)
-        </div>
-      )
+      <Pagination>
+        <PaginationItem disabled={this.state.Current === 1}>
+          <PaginationLink previous onClick={this.prevClicked} />
+        </PaginationItem>
+
+        {this.state.Pages.map(p => {
+          return (
+            <PaginationItem key={p} active={p === this.state.Current}>
+              <PaginationLink onClick={this.pageClicked} href={p}>
+                {p}
+              </PaginationLink>
+            </PaginationItem>
+          );
+        })}
+        <PaginationItem disabled={this.state.Current === this.props.totalPages}>
+          <PaginationLink next onClick={this.nextClicked} />
+        </PaginationItem>
+      </Pagination>
     );
   }
 }
 
-ReactstrapTable.propTypes = {
-  hidden: PropTypes.bool
+Pager.propTypes = {
+  //fired when user clicks a page number
+  pageChanged: PropTypes.func.isRequired,
+  //the total number of pages
+  totalPages: function(props, propName, component) {
+    if (!props.totalPages) {
+      return new Error("totalPages is required");
+    } else if (props.totalPages < props.totalDisplayed) {
+      return new Error("totalpages must be >= totalDisplayed");
+    } else if (props.totalPages < 2) {
+      return new Error("totalPages must be 2 or greater");
+    }
+  },
+  //the total number of pages displayed
+  totalDisplayed: PropTypes.number
 };
+
+Pager.defaultProps = {
+  totalDisplayed: 5
+};
+export default Pager;
