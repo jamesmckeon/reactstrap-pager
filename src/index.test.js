@@ -1,9 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import Pager from "index";
-import { shallow, mount, configure } from "enzyme";
-import sinon from "sinon";
+import { configure, mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
+import Pager from "index";
+import React from "react";
+import sinon from "sinon";
 
 configure({ adapter: new Adapter() });
 
@@ -189,7 +188,7 @@ describe("Pager", () => {
     expect(backItem.render().hasClass("disabled")).toEqual(false);
   });
 
-  it("enables forward button on initial render", () => {
+  it("enables move next on initial render", () => {
     const pager = mount(
       <Pager
         pageChanged={() => {
@@ -206,6 +205,31 @@ describe("Pager", () => {
     expect(forwardItem.render().hasClass("disabled")).toEqual(false);
   });
 
+  it("disables move next on last page", () => {
+    const pager = mount(
+      <Pager
+        pageChanged={() => {
+          return;
+        }}
+        totalPages={4}
+        totalDisplayed={3}
+      />
+    );
+
+    const pageThree = pager.find("a[href=3]").at(0);
+
+    const totalItems = pager.find(".page-item").length;
+    const forwardItem = pager.find(".page-item").at(totalItems - 1);
+    const nextLink = pager.find("a[aria-label='Next']").at(0);
+
+    //activate page 3
+    pageThree.simulate("click");
+
+    //move next to activate last page
+    nextLink.simulate("click");
+
+    expect(nextLink.render().hasClass("disabled")).toEqual(true);
+  });
   it("activates link on click", () => {
     const pager = mount(
       <Pager
