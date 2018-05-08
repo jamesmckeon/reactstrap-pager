@@ -1,5 +1,5 @@
 {
-    "name": "reactstrap-pager",
+    "name": "reactstrap-table",
     "version": "1.0.1",
     "license": "MIT",
     "author": {
@@ -8,7 +8,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/jamesmckeon/reactstrap-pager.git"
+        "url": "https://github.com/jamesmckeon/reactstrap-table.git"
     },
     "scripts": {
         "build": "webpack --config webpack.config.babel.js",
@@ -22,7 +22,8 @@
     "dependencies": {
         "react": "^16.0.0",
         "react-dom": "^16.0.0",
-        "reactstrap": "^6.0.1"
+        "reactstrap": "^6.0.1",
+        "reactstrap-pager": "^1.0.1"
     },
     "devDependencies": {
         "babel-eslint": "^8.0.1",
